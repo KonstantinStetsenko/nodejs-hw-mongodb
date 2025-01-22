@@ -1,7 +1,6 @@
 import { model, Schema } from 'mongoose';
 
 export const contactsSchema = new Schema({
-  //   _id: { type: String },
   name: { type: String, required: true },
   phoneNumber: { type: String, required: true },
   email: { type: String },
