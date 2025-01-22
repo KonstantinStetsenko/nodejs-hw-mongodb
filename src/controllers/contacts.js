@@ -62,7 +62,7 @@ export const patchContactController = async (req, res) => {
     data: result.student,
   });
 };
-
+// Удаление
 export const deleteContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
