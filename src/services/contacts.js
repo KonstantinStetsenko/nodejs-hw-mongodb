@@ -1,9 +1,15 @@
 import createHttpError from 'http-errors';
 import mongoose from 'mongoose';
 import { calculatePaginationData } from '../../utils/calculatePaginationData.js';
+import { SORT_ORDER } from '../constants/constSort.js';
 import { ContactsCollection } from '../db/models/contacts.js';
 
-export const getAllContacts = async ({ page, perPage }) => {
+export const getAllContacts = async ({
+  page,
+  perPage,
+  sortOrder = SORT_ORDER.ASC,
+  sortBy = ['name', 'phoneNumber'],
+}) => {
   const limit = perPage;
   const skip = (page - 1) * perPage;
   const contactsQuery = ContactsCollection.find();
@@ -11,7 +17,11 @@ export const getAllContacts = async ({ page, perPage }) => {
     .merge(contactsQuery)
     .countDocuments();
 
-  const contacts = await contactsQuery.skip(skip).limit(limit).exec();
+  const contacts = await contactsQuery
+    .skip(skip)
+    .limit(limit)
+    .sort({ [sortBy]: sortOrder })
+    .exec();
   const paginationData = calculatePaginationData(contactsCount, perPage, page);
   return { date: contacts, ...paginationData };
 };
