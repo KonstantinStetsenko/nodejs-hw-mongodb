@@ -1,6 +1,6 @@
 import createHttpError from 'http-errors';
-import mongoose from 'mongoose';
 import { calculatePaginationData } from '../../utils/calculatePaginationData.js';
+import { parseFilterQuery } from '../../utils/parseFilterParams.js';
 import { SORT_ORDER } from '../constants/constSort.js';
 import { ContactsCollection } from '../db/models/contacts.js';
 
@@ -13,18 +13,20 @@ export const getAllContacts = async ({
 }) => {
   const limit = perPage;
   const skip = (page - 1) * perPage;
-  let contactsQuery = ContactsCollection.find();
-  if (filter.isFavourite !== undefined) {
-    const isFavouriteValue =
-      typeof filter.isFavourite === 'boolean'
-        ? filter.isFavourite
-        : filter.isFavourite.toString().toLowerCase() === 'true';
 
-    contactsQuery = contactsQuery.where('isFavourite').equals(isFavouriteValue);
-  }
-  if (filter.type) {
-    contactsQuery = contactsQuery.where('contactType').equals(filter.type);
-  }
+  const filterQuery = parseFilterQuery(filter);
+  let contactsQuery = ContactsCollection.find(filterQuery);
+  // if (filter.isFavourite !== undefined) {
+  //   const isFavouriteValue =
+  //     typeof filter.isFavourite === 'boolean'
+  //       ? filter.isFavourite
+  //       : filter.isFavourite.toString().toLowerCase() === 'true';
+
+  //   contactsQuery = contactsQuery.where('isFavourite').equals(isFavouriteValue);
+  // }
+  // if (filter.type) {
+  //   contactsQuery = contactsQuery.where('contactType').equals(filter.type);
+  // }
 
   const contactsCount = await ContactsCollection.find()
     .merge(contactsQuery)
@@ -40,9 +42,9 @@ export const getAllContacts = async ({
 };
 
 export const getContactById = async (contactId) => {
-  if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    throw createHttpError(404, 'Contact not found');
-  }
+  // if (!mongoose.Types.ObjectId.isValid(contactId)) {
+  //   throw createHttpError(404, 'Contact not found');
+  // }
   const contact = await ContactsCollection.findById(contactId);
 
   if (!contact) {
@@ -76,9 +78,9 @@ export const updateContact = async (contactId, paylod, options = {}) => {
 };
 
 export const deleteContact = async (contactId) => {
-  if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    throw createHttpError(404, 'Contact not found');
-  }
+  // if (!mongoose.Types.ObjectId.isValid(contactId)) {
+  //   throw createHttpError(404, 'Contact not found');
+  // }
   const contact = await ContactsCollection.findOneAndDelete({ _id: contactId });
   if (!contact) {
     throw createHttpError(404, 'Contact not found');

@@ -18,7 +18,7 @@ const router = express.Router();
 router.get('/contacts', ctrlWrapper(getContactsController));
 router.get(
   '/contacts/:contactId',
-  isValidId('contactId'),
+  isValidId,
   ctrlWrapper(getContactIdController),
 );
 router.post(
@@ -28,13 +28,13 @@ router.post(
 );
 router.patch(
   '/contacts/:contactId',
-  isValidId('contactId'),
+  isValidId,
   validateBody(updateContactValidationSchema),
   ctrlWrapper(patchContactController),
 );
 router.delete(
   '/contacts/:contactId',
-  isValidId('contactId'),
+  isValidId,
   ctrlWrapper(deleteContactController),
 );
 export default router;

@@ -33,21 +33,19 @@ export const getContactsController = async (req, res) => {
 
 export const getContactIdController = async (req, res, next) => {
   const { contactId } = req.params;
+  console.log(`Looking for contact with id: ${contactId}`);
 
-  try {
-    const contact = await getContactById(contactId);
-    if (!contact) {
-      throw createHttpError(404, 'Contact not found');
-    }
-
-    res.json({
-      status: 200,
-      message: `Successfully found contact with id ${contactId}!`,
-      data: contact,
-    });
-  } catch (err) {
-    next(err);
+  const contact = await getContactById(contactId);
+  if (!contact) {
+    console.log('Contact not found, throwing error');
+    throw createHttpError(404, 'Contact not found');
   }
+
+  res.json({
+    status: 200,
+    message: `Successfully found contact with id ${contactId}!`,
+    data: contact,
+  });
 };
 
 export const createContactController = async (req, res) => {
@@ -65,8 +63,7 @@ export const patchContactController = async (req, res) => {
     upsert: true,
   });
   if (!result) {
-    next(createHttpError(404, 'Contact not found'));
-    return;
+    throw createHttpError(404, 'Contact not found');
   }
   const status = result.isNew ? 201 : 200;
 
@@ -76,20 +73,16 @@ export const patchContactController = async (req, res) => {
     data: result.student,
   });
 };
-// Удаление
+
 export const deleteContactController = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const contact = await deleteContact(contactId);
-    if (!contact) {
-      throw createHttpError(404, 'Contact not found');
-    }
-    res.json({
-      status: 204,
-      message: 'Successfully delete contacts!',
-      data: contact,
-    });
-  } catch (err) {
-    next(err);
+  const { contactId } = req.params;
+  const contact = await deleteContact(contactId);
+  if (!contact) {
+    throw createHttpError(404, 'Contact not found');
   }
+  res.json({
+    status: 204,
+    message: 'Successfully delete contacts!',
+    data: contact,
+  });
 };

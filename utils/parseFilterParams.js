@@ -18,6 +18,19 @@ const parseBoolean = (value) => {
   return undefined;
 };
 
+export const parseFilterQuery = (filter) => {
+  const query = {};
+  if (filter.isFavourite !== undefined) {
+    query.isFavourite = filter.isFavourite;
+  }
+
+  if (filter.type) {
+    query.contactType = filter.type;
+  }
+
+  return query;
+};
+
 export const parseFilterParams = (query) => {
   if (!query) return {};
 
