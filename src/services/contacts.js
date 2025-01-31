@@ -8,22 +8,35 @@ export const getAllContacts = async ({
   page,
   perPage,
   sortOrder = SORT_ORDER.ASC,
-  sortBy = ['name', 'phoneNumber'],
+  sortBy = ['name'],
+  filter = {},
 }) => {
   const limit = perPage;
   const skip = (page - 1) * perPage;
-  const contactsQuery = ContactsCollection.find();
+  let contactsQuery = ContactsCollection.find();
+  if (filter.isFavourite !== undefined) {
+    const isFavouriteValue =
+      typeof filter.isFavourite === 'boolean'
+        ? filter.isFavourite
+        : filter.isFavourite.toString().toLowerCase() === 'true';
+
+    contactsQuery = contactsQuery.where('isFavourite').equals(isFavouriteValue);
+  }
+  if (filter.type) {
+    contactsQuery = contactsQuery.where('contactType').equals(filter.type);
+  }
+
   const contactsCount = await ContactsCollection.find()
     .merge(contactsQuery)
     .countDocuments();
-
   const contacts = await contactsQuery
     .skip(skip)
     .limit(limit)
     .sort({ [sortBy]: sortOrder })
     .exec();
   const paginationData = calculatePaginationData(contactsCount, perPage, page);
-  return { date: contacts, ...paginationData };
+
+  return { data: contacts, ...paginationData, filter };
 };
 
 export const getContactById = async (contactId) => {
@@ -39,7 +52,7 @@ export const getContactById = async (contactId) => {
   return contact;
 };
 
-export const creatContact = async (paylod) => {
+export const createContact = async (paylod) => {
   const contact = await ContactsCollection.create(paylod);
   return contact;
 };

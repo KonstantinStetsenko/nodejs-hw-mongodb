@@ -1,27 +1,30 @@
 const parseType = (type) => {
-  const isString = typeof type === 'string';
-  if (!isString) return;
-  const isContactType = (type) => ['work', 'home', 'personal'].includes(type);
+  if (typeof type !== 'string') return undefined;
 
-  if (isContactType(type)) return type;
+  const validTypes = ['work', 'home', 'personal'];
+  return validTypes.includes(type) ? type : undefined;
 };
 
-const parseNumber = (number) => {
-  const isString = typeof number === 'string';
-  if (!isString) return;
-
-  const parsedNumber = parseInt(number);
-  if (Number.isNaN(parsedNumber)) {
-    return;
+const parseBoolean = (value) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const lowerCaseValue = value.toLowerCase();
+    return lowerCaseValue === 'true'
+      ? true
+      : lowerCaseValue === 'false'
+      ? false
+      : undefined;
   }
-
-  return parsedNumber;
+  return undefined;
 };
+
 export const parseFilterParams = (query) => {
+  if (!query) return {};
+
   const { isFavourite, type } = query;
 
   const parsedType = parseType(type);
-  const parsedFavourite = parseNumber(isFavourite);
+  const parsedFavourite = parseBoolean(isFavourite);
 
   return {
     type: parsedType,

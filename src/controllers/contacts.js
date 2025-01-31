@@ -1,9 +1,10 @@
 import createHttpError from 'http-errors';
 
+import { parseFilterParams } from '../../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../../utils/parsePaginationParams.js';
 import { parseSortParams } from '../../utils/parseSortParams.js';
 import {
-  creatContact,
+  createContact,
   deleteContact,
   getAllContacts,
   getContactById,
@@ -12,7 +13,15 @@ import {
 export const getContactsController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query);
-  const contacts = await getAllContacts({ page, perPage, sortBy, sortOrder });
+  const filter = parseFilterParams(req.query);
+
+  const contacts = await getAllContacts({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    filter,
+  });
   res.json({
     status: 200,
     message: 'Successfully found contacts!',
@@ -24,11 +33,10 @@ export const getContactsController = async (req, res) => {
 
 export const getContactIdController = async (req, res, next) => {
   const { contactId } = req.params;
-  console.log(`Looking for contact with id: ${contactId}`);
+
   try {
     const contact = await getContactById(contactId);
     if (!contact) {
-      console.log('Contact not found, throwing error');
       throw createHttpError(404, 'Contact not found');
     }
 
@@ -43,7 +51,7 @@ export const getContactIdController = async (req, res, next) => {
 };
 
 export const createContactController = async (req, res) => {
-  const contact = await creatContact(req.body);
+  const contact = await createContact(req.body);
   res.status(201).json({
     status: 201,
     massage: 'Successfully created a contact!',
