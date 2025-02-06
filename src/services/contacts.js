@@ -1,4 +1,5 @@
 import createHttpError from 'http-errors';
+import mongoose from 'mongoose';
 import { calculatePaginationData } from '../../utils/calculatePaginationData.js';
 import { parseFilterQuery } from '../../utils/parseFilterParams.js';
 import { SORT_ORDER } from '../constants/constSort.js';
@@ -42,12 +43,14 @@ export const getAllContacts = async ({
 };
 
 export const getContactById = async (contactId) => {
-  // if (!mongoose.Types.ObjectId.isValid(contactId)) {
-  //   throw createHttpError(404, 'Contact not found');
-  // }
+  if (!mongoose.Types.ObjectId.isValid(contactId)) {
+    throw createHttpError(404, 'Contact not found');
+  }
+
   const contact = await ContactsCollection.findById(contactId);
 
   if (!contact) {
+    console.log('Контакт не найден');
     throw createHttpError(404, 'Contact not found');
   }
 
@@ -81,7 +84,9 @@ export const deleteContact = async (contactId) => {
   // if (!mongoose.Types.ObjectId.isValid(contactId)) {
   //   throw createHttpError(404, 'Contact not found');
   // }
-  const contact = await ContactsCollection.findOneAndDelete({ _id: contactId });
+  const contact = await ContactsCollection.findByIdAndDelete({
+    _id: contactId,
+  });
   if (!contact) {
     throw createHttpError(404, 'Contact not found');
   }
