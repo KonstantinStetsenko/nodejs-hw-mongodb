@@ -5,13 +5,13 @@ import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/constSort.js';
 import { SessionsCollection } from '../db/models/session.js';
 import { UserCollection } from '../db/models/user.js';
 
-export const registerUser = async (paylod) => {
-  const user = await UserCollection.findOne({ email: paylod.email });
+export const registerUser = async (payload) => {
+  const user = await UserCollection.findOne({ email: payload.email });
   if (user) throw createHttpError(409, 'Email in use');
 
-  const encryptedPassword = await bcrypt.hash(paylod.password, 10);
+  const encryptedPassword = await bcrypt.hash(payload.password, 10);
   return await UserCollection.create({
-    ...paylod,
+    ...payload,
     password: encryptedPassword,
   });
 };

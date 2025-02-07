@@ -6,6 +6,7 @@ import { SORT_ORDER } from '../constants/constSort.js';
 import { ContactsCollection } from '../db/models/contacts.js';
 
 export const getAllContacts = async ({
+  userId,
   page,
   perPage,
   sortOrder = SORT_ORDER.ASC,
@@ -16,18 +17,7 @@ export const getAllContacts = async ({
   const skip = (page - 1) * perPage;
 
   const filterQuery = parseFilterQuery(filter);
-  let contactsQuery = ContactsCollection.find(filterQuery);
-  // if (filter.isFavourite !== undefined) {
-  //   const isFavouriteValue =
-  //     typeof filter.isFavourite === 'boolean'
-  //       ? filter.isFavourite
-  //       : filter.isFavourite.toString().toLowerCase() === 'true';
-
-  //   contactsQuery = contactsQuery.where('isFavourite').equals(isFavouriteValue);
-  // }
-  // if (filter.type) {
-  //   contactsQuery = contactsQuery.where('contactType').equals(filter.type);
-  // }
+  let contactsQuery = ContactsCollection.find({ userId });
 
   const contactsCount = await ContactsCollection.find()
     .merge(contactsQuery)
@@ -57,15 +47,20 @@ export const getContactById = async (contactId) => {
   return contact;
 };
 
-export const createContact = async (paylod) => {
-  const contact = await ContactsCollection.create(paylod);
+export const createContact = async (payload, userId) => {
+  const contact = await ContactsCollection.create(...payload, userId);
   return contact;
 };
 
-export const updateContact = async (contactId, paylod, options = {}) => {
+export const updateContact = async (
+  contactId,
+  payload,
+  userId,
+  options = {},
+) => {
   const rawResult = await ContactsCollection.findByIdAndUpdate(
-    { _id: contactId },
-    paylod,
+    { _id: contactId, userId },
+    payload,
     {
       new: true,
       includeResultMetadata: true,
@@ -80,12 +75,13 @@ export const updateContact = async (contactId, paylod, options = {}) => {
   };
 };
 
-export const deleteContact = async (contactId) => {
+export const deleteContact = async (contactId, userId) => {
   // if (!mongoose.Types.ObjectId.isValid(contactId)) {
   //   throw createHttpError(404, 'Contact not found');
   // }
   const contact = await ContactsCollection.findByIdAndDelete({
     _id: contactId,
+    userId,
   });
   if (!contact) {
     throw createHttpError(404, 'Contact not found');

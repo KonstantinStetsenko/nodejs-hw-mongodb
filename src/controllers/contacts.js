@@ -10,6 +10,7 @@ import {
   getContactById,
   updateContact,
 } from '../services/contacts.js';
+
 export const getContactsController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
   const { sortBy, sortOrder } = parseSortParams(req.query);
