@@ -27,11 +27,7 @@ router.post(
 
 router.use(authenticate);
 
-router.get(
-  '/',
-  checkRoles(ROLES.TEACHER, ROLES.PARENT),
-  ctrlWrapper(getContactsController),
-);
+router.get('/', checkRoles(ROLES.TEACHER), ctrlWrapper(getContactsController));
 router.get(
   '/:contactId',
   checkRoles(ROLES.TEACHER, ROLES.PARENT),
