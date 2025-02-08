@@ -18,10 +18,11 @@ export const getAllContacts = async ({
 
   const filterQuery = parseFilterQuery(filter);
   let contactsQuery = ContactsCollection.find({ userId });
+  const contactsCount = await ContactsCollection.countDocuments({
+    userId,
+    ...filterQuery,
+  });
 
-  const contactsCount = await ContactsCollection.find()
-    .merge(contactsQuery)
-    .countDocuments();
   const contacts = await contactsQuery
     .skip(skip)
     .limit(limit)
@@ -32,12 +33,15 @@ export const getAllContacts = async ({
   return { data: contacts, ...paginationData };
 };
 
-export const getContactById = async (contactId) => {
+export const getContactById = async (contactId, userId) => {
   if (!mongoose.Types.ObjectId.isValid(contactId)) {
     throw createHttpError(404, 'Contact not found');
   }
 
-  const contact = await ContactsCollection.findById(contactId);
+  const contact = await ContactsCollection.findOne({
+    _id: contactId,
+    userId,
+  });
 
   if (!contact) {
     console.log('Контакт не найден');
@@ -48,7 +52,7 @@ export const getContactById = async (contactId) => {
 };
 
 export const createContact = async (payload, userId) => {
-  const contact = await ContactsCollection.create(...payload, userId);
+  const contact = await ContactsCollection.create({ ...payload, userId });
   return contact;
 };
 
@@ -58,33 +62,48 @@ export const updateContact = async (
   userId,
   options = {},
 ) => {
-  const rawResult = await ContactsCollection.findByIdAndUpdate(
+  console.log('contactId:', contactId);
+  console.log('userId:', userId);
+  if (
+    !mongoose.Types.ObjectId.isValid(contactId) ||
+    !mongoose.Types.ObjectId.isValid(userId)
+  ) {
+    console.log('Invalid contactId or userId:', contactId, userId);
+    throw createHttpError(400, 'Invalid ID format');
+  }
+
+  const contact = await ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
     payload,
     {
       new: true,
-      includeResultMetadata: true,
-      ...options,
       runValidators: true,
+      ...options,
     },
   );
-  if (!rawResult || !rawResult.value) return null;
-  return {
-    contact: rawResult.value,
-    isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-  };
-};
 
-export const deleteContact = async (contactId, userId) => {
-  // if (!mongoose.Types.ObjectId.isValid(contactId)) {
-  //   throw createHttpError(404, 'Contact not found');
-  // }
-  const contact = await ContactsCollection.findByIdAndDelete({
-    _id: contactId,
-    userId,
-  });
+  console.log('Contact linked with user');
+
   if (!contact) {
     throw createHttpError(404, 'Contact not found');
   }
+
+  return contact;
+};
+
+export const deleteContact = async (contactId, userId) => {
+  if (!mongoose.Types.ObjectId.isValid(contactId)) {
+    throw createHttpError(400, 'Invalid contact ID format');
+  }
+
+  const contact = await ContactsCollection.findOneAndDelete({
+    _id: contactId,
+    userId,
+  });
+
+  if (!contact) {
+    throw createHttpError(404, 'Contact not found');
+  }
+
   return contact;
 };

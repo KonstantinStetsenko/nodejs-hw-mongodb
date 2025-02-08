@@ -10,8 +10,12 @@ export const checkRoles =
 
     console.log('User:', user);
     console.log('Allowed roles:', roles);
-    console.log('User role:', user?.role);
+    console.log('User role:', user.role);
     console.log('Checking parent access, params:', req.params);
+
+    console.log('User role:', user.role);
+    console.log('Contact ID:', req.params.contactId);
+    console.log('Parent ID:', req.user._id);
 
     if (!user) {
       next(createHttpError(401, 'Unauthorized: User not found'));
@@ -34,15 +38,15 @@ export const checkRoles =
 
       try {
         const contactId = new mongoose.Types.ObjectId(req.params.contactId);
-        const student = await ContactsCollection.findOne({
+        const contact = await ContactsCollection.findOne({
           _id: contactId,
-          parentId: user._id,
+          userId: req.user._id,
         });
 
-        console.log('MongoDB search result:', student);
+        console.log('MongoDB search result:', contact);
 
-        if (student) {
-          console.log('Access granted: Parent of student', student);
+        if (contact) {
+          console.log('Access granted: Parent of student', contact);
           next();
           return;
         }

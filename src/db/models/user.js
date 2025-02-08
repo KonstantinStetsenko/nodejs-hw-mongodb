@@ -21,4 +21,4 @@ usersSchema.methods.toJSON = function () {
   return obj;
 };
 
-export const UserCollection = model('users', usersSchema);
+export const UserCollection = model('User', usersSchema);
