@@ -94,7 +94,7 @@ export const patchContactController = async (req, res) => {
   res.status(status).json({
     status,
     message: `Successfully upserted a student!`,
-    data: result.student,
+    data: result,
   });
 };
 
