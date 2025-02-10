@@ -1,5 +1,3 @@
-import createHttpError from 'http-errors';
-import mongoose from 'mongoose';
 import { calculatePaginationData } from '../../utils/calculatePaginationData.js';
 import { parseFilterQuery } from '../../utils/parseFilterParams.js';
 import { SORT_ORDER } from '../constants/constSort.js';
@@ -34,19 +32,10 @@ export const getAllContacts = async ({
 };
 
 export const getContactById = async (contactId, userId) => {
-  if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    throw createHttpError(404, 'Contact not found');
-  }
-
   const contact = await ContactsCollection.findOne({
     _id: contactId,
     userId,
   });
-
-  if (!contact) {
-    console.log('Контакт не найден');
-    throw createHttpError(404, 'Contact not found');
-  }
 
   return contact;
 };
@@ -62,16 +51,6 @@ export const updateContact = async (
   userId,
   options = {},
 ) => {
-  console.log('contactId:', contactId);
-  console.log('userId:', userId);
-  if (
-    !mongoose.Types.ObjectId.isValid(contactId) ||
-    !mongoose.Types.ObjectId.isValid(userId)
-  ) {
-    console.log('Invalid contactId or userId:', contactId, userId);
-    throw createHttpError(400, 'Invalid ID format');
-  }
-
   const contact = await ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
     payload,
@@ -82,28 +61,14 @@ export const updateContact = async (
     },
   );
 
-  console.log('Contact linked with user');
-
-  if (!contact) {
-    throw createHttpError(404, 'Contact not found');
-  }
-
   return contact;
 };
 
 export const deleteContact = async (contactId, userId) => {
-  if (!mongoose.Types.ObjectId.isValid(contactId)) {
-    throw createHttpError(400, 'Invalid contact ID format');
-  }
-
   const contact = await ContactsCollection.findOneAndDelete({
     _id: contactId,
     userId,
   });
-
-  if (!contact) {
-    throw createHttpError(404, 'Contact not found');
-  }
 
   return contact;
 };

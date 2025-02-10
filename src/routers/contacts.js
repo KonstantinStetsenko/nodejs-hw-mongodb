@@ -27,17 +27,17 @@ router.post(
 
 router.use(authenticate);
 
-router.get('/', checkRoles(ROLES.TEACHER), ctrlWrapper(getContactsController));
+router.get('/', ctrlWrapper(getContactsController));
 router.get(
   '/:contactId',
-  checkRoles(ROLES.TEACHER, ROLES.PARENT),
+
   isValidId,
   ctrlWrapper(getContactIdController),
 );
-
+router.post('/', ctrlWrapper(createContactController));
 router.put(
   '/:contactId',
-  checkRoles(ROLES.TEACHER, ROLES.PARENT),
+
   isValidId,
   validateBody(updateContactValidationSchema),
   ctrlWrapper(upsertContactController),
@@ -45,7 +45,7 @@ router.put(
 
 router.patch(
   '/:contactId',
-  checkRoles(ROLES.TEACHER, ROLES.PARENT),
+
   isValidId,
   validateBody(updateContactValidationSchema),
   ctrlWrapper(patchContactController),
