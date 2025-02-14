@@ -36,11 +36,9 @@ export const getContactsController = async (req, res) => {
 export const getContactIdController = async (req, res, next) => {
   const { contactId } = req.params;
   const userId = req.user._id;
-  console.log(`Looking for contact with id: ${contactId}`);
 
   const contact = await getContactById(contactId, userId);
   if (!contact) {
-    console.log('Contact not found, throwing error');
     throw createHttpError(404, 'Contact not found');
   }
 
@@ -96,7 +94,7 @@ export const patchContactController = async (req, res) => {
   res.status(status).json({
     status,
     message: `Successfully upserted a student!`,
-    data: result.student,
+    data: result,
   });
 };
 
