@@ -3,13 +3,16 @@
 // const { loginUserSchema, registerUserSchema } = authSchemas;
 
 import { Router } from 'express';
-import { ctrlWrapper } from '../../utils/ctrlWrapper.js';
 import {
   loginUserController,
   logoutUserController,
   refreshUserSessionController,
   registerUserController,
-} from '../controllers/auth.js';
+  requestResetEmailController,
+  resetPasswordController,
+} from '../../src/controllers/auth.js';
+import { ctrlWrapper } from '../../utils/ctrlWrapper.js';
+
 import { validateBody } from '../middlewares/validateBody.js';
 
 import * as schemas from '../validation/auth.js';
@@ -32,4 +35,16 @@ router.post(
 
 router.post('/logout', ctrlWrapper(logoutUserController));
 router.post('/refresh', ctrlWrapper(refreshUserSessionController));
+router.post(
+  '/request-reset-email',
+  validateBody(schemas.requestResetEmailSchema),
+  ctrlWrapper(requestResetEmailController),
+);
+
+router.post(
+  '/reset-password',
+  validateBody(schemas.resetPasswordSchema),
+  ctrlWrapper(resetPasswordController),
+);
+
 export default router;
