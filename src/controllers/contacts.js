@@ -1,8 +1,11 @@
 import createHttpError from 'http-errors';
 
+import { getEnvVar } from '../../utils/getEnvVar.js';
 import { parseFilterParams } from '../../utils/parseFilterParams.js';
 import { parsePaginationParams } from '../../utils/parsePaginationParams.js';
 import { parseSortParams } from '../../utils/parseSortParams.js';
+import { saveFileToCloudinary } from '../../utils/saveFileToCloudinary.js';
+import { saveFileToUploadDir } from '../../utils/saveFileToUploadDir.js';
 import {
   createContact,
   deleteContact,
@@ -83,9 +86,27 @@ export const createContactController = async (req, res) => {
 export const patchContactController = async (req, res) => {
   const { contactId } = req.params;
   const userId = req.user._id;
-  const result = await updateContact(contactId, req.body, userId, {
-    upsert: false,
-  });
+  const photo = req.file;
+  let photoUrl;
+  if (photo) {
+    if (
+      getEnvVar('ENABLE_CLOUDINARY') === 'true' ||
+      getEnvVar('ENABLE_CLOUDINARY') === true
+    ) {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+
+  const result = await updateContact(
+    contactId,
+    { ...req.body, photo: photoUrl },
+    userId,
+    {
+      upsert: false,
+    },
+  );
   if (!result) {
     throw createHttpError(404, 'Contact not found');
   }
