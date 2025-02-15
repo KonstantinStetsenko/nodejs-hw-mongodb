@@ -5,8 +5,8 @@ import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { getEnvVar } from '../../../../NodeJS/nodejs-hw-mongodb/utils/getEnvVar.js';
-import { sendEmail } from '../../../../NodeJS/nodejs-hw-mongodb/utils/sendMail.js';
+import { sendEmail } from '../../NodeJS/nodejs-hw-mongodb/utils/sendMail.js';
+import { getEnvVar } from '../../utils/getEnvVar.js';
 import {
   FIFTEEN_MINUTES,
   ONE_DAY,
