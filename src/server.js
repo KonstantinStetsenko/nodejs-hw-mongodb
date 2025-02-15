@@ -1,9 +1,11 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import pino from 'pino-http';
 import { notFoundHandler } from '../src/middlewares/notFoundHandler.js';
-import contactRouter from '../src/routers/contacts.js';
+import router from '../src/routers/index.js';
 import { getEnvVar } from '../utils/getEnvVar.js';
+import { UPLOAD_DIR } from './constants/constSort.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 const PORT = Number(getEnvVar('PORT', '3000'));
 
@@ -12,7 +14,7 @@ export const setupServer = () => {
 
   app.use(express.json());
   app.use(cors());
-
+  app.use(cookieParser());
   app.use(
     pino({
       transport: {
@@ -20,10 +22,10 @@ export const setupServer = () => {
       },
     }),
   );
-  app.use(contactRouter);
-  app.use(notFoundHandler);
+  app.use(router);
+  app.use('*', notFoundHandler);
   app.use(errorHandler);
-
+  app.use('/uploads', express.static(UPLOAD_DIR));
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
