@@ -30,9 +30,7 @@ export const getContactsController = async (req, res) => {
   res.json({
     status: 200,
     message: 'Successfully found contacts!',
-    data: {
-      data: contacts,
-    },
+    data: contacts,
   });
 };
 
@@ -55,9 +53,26 @@ export const getContactIdController = async (req, res, next) => {
 export const upsertContactController = async (req, res, next) => {
   const { contactId } = req.params;
   const userId = req.user._id;
-  const result = await updateContact(contactId, req.body, userId, {
-    upsert: false,
-  });
+  const photo = req.file;
+  let photoUrl = null;
+  if (photo) {
+    if (
+      getEnvVar('ENABLE_CLOUDINARY') === 'true' ||
+      getEnvVar('ENABLE_CLOUDINARY') === true
+    ) {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+  const result = await updateContact(
+    contactId,
+    { ...req.body, photo: photoUrl },
+    userId,
+    {
+      upsert: false,
+    },
+  );
 
   if (!result) {
     next(createHttpError(404, 'Contact not found'));
@@ -75,10 +90,25 @@ export const upsertContactController = async (req, res, next) => {
 
 export const createContactController = async (req, res) => {
   const userId = req.user._id;
-  const contact = await createContact(req.body, userId);
+  const photo = req.file;
+  let photoUrl = null;
+  if (photo) {
+    if (
+      getEnvVar('ENABLE_CLOUDINARY') === 'true' ||
+      getEnvVar('ENABLE_CLOUDINARY') === true
+    ) {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+  const contact = await createContact({ ...req.body, photo: photoUrl }, userId);
+  if (!contact) {
+    throw createHttpError(400, 'Failed to create contact');
+  }
   res.status(201).json({
     status: 201,
-    massage: 'Successfully created a contact!',
+    message: 'Successfully created a contact!',
     data: contact,
   });
 };
