@@ -7,6 +7,7 @@ import router from '../src/routers/index.js';
 import { getEnvVar } from '../utils/getEnvVar.js';
 import { UPLOAD_DIR } from './constants/constSort.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 const PORT = Number(getEnvVar('PORT', '3000'));
 
 export const setupServer = () => {
@@ -26,6 +27,7 @@ export const setupServer = () => {
   app.use('*', notFoundHandler);
   app.use(errorHandler);
   app.use('/uploads', express.static(UPLOAD_DIR));
+  app.use('/api-docs', swaggerDocs());
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
