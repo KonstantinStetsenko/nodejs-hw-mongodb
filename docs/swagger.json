@@ -257,7 +257,7 @@
           "Contacts"
         ],
         "summary": "Get contact by id",
-        "operationId": "getContact",
+        "operationId": "getContactId",
         "description": "Get contact by id",
         "security": [
           {
